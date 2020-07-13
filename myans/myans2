@@ -1,0 +1,19 @@
+--直近を求める
+select
+	sample_date,
+	min(sample_date) over
+		(order by sample_date asc rows between 1 preceding and 1 preceding)
+	as latest_date
+from
+	LoadSample;
+	
+
+--負荷量も(名前付き)
+select
+	sample_date,
+	min(sample_date) over W as latest_date,
+	min(load_val) over W as latest_val
+from
+	LoadSample
+window W as
+	(order by sample_date asc rows between 1 preceding and 1 preceding);
