@@ -1,0 +1,79 @@
+-- 欠席者を探す
+select meeting, person
+from (select distinct meeting
+	from Meetings) m
+cross join (select distinct person
+	from Meetings) p
+where not exists (
+	select meeting, person
+	from Meetings mo
+	where m.meeting = mo.meeting and p.person = mo.person
+);
+
+--全称量化
+select distinct student_id
+from TestScores s
+where not exists (
+	select student_id
+	from TestScores t
+	where score < 50 and s.student_id = t.student_id);
+
+--全称量化②
+select distinct student_id
+from TestScores s
+where not exists (
+	select student_id
+	from TestScores t
+	where ((t.score < 50 and t.subject='国語')
+	or (t.score < 80 and t.subject='算数'))
+	and s.student_id = t.student_id);
+
+--全称量化②、受けた人に限定
+select student_id
+from TestScores s
+where s.subject in ('算数', '国語')
+and not exists (
+	select student_id
+	from TestScores t
+	where ((t.score < 50 and t.subject='国語')
+	or (t.score < 80 and t.subject='算数'))
+	and s.student_id = t.student_id)
+group by student_id
+having count(s.subject)=2;
+
+--全部が1の行を探す
+select *
+from ArrayTbl
+where 1 = all(array[col1, col2, col3, col4, col5, col6, col7, col8, col9, col10]);
+
+--少なくとも1つが9の行を探す
+select *
+from ArrayTbl
+where 9 = any(array[col1, col2, col3, col4, col5, col6, col7, col8, col9, col10]);
+
+--演習問題5-①
+select distinct a.key
+from ArrayTbl2 a
+where not exists (
+	select b.key
+	from ArrayTbl2 b
+	where coalesce(val, 0) <> 1
+	and a.key = b.key);
+
+--別解
+select a.key
+from ArrayTbl2 a
+group by a.key
+having count(coalesce(a.val, 0)) = (
+	select count(b.val)
+	from ArrayTbl2 b
+	where b.val = 1 and a.key = b.key
+	group by b.key);
+
+--別解
+select key
+from ArrayTbl2
+group by key
+having sum(case when coalesce(val, 0)=1 then 1
+			else 0 end) = 10
+

@@ -1,0 +1,16 @@
+--演習問題4-①
+select *
+from Students
+order by age;
+
+select *
+from Students
+order by age desc;
+
+--演習問題4-②
+select 'abc' || str as str, description
+from Emptystr;
+
+--演習問題4-③
+select nullif(age, 22)
+from Students;

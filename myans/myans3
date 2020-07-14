@@ -1,0 +1,79 @@
+--完全重複の削除
+delete from Products p1
+	where oid < (select p2.oid
+		from Products p2
+		where p1.name=p2.name
+		and p1.price=p2.price);
+
+
+--部分重複の誤差検出
+select
+	a1.*
+from
+	Addresses a1
+where exists
+	(select
+		*
+	from
+		Addresses a2
+	where
+		a1.family_id=a2.family_id
+		and a1.address<>a2.address);
+
+--もっと簡単に
+select a1.*
+from Addresses a1
+inner join Addresses a2
+on a1.family_id=a2.family_id
+and a1.address!=a2.address;
+
+--値段が同じ商品の組み合わせ
+select
+	p1.name,
+	p1.price
+from
+	Products p1
+where exists
+	(select p2.*
+	from Products p2
+	where p1.name <> p2.name
+	and p1.price = p2.price)
+order by p1.price asc;
+
+--値段が同じ商品の組み合わせ②
+select distinct
+	p1.name, p1.price
+from
+	Products p1
+inner join
+	Products p2
+on
+	p1.price = p2.price
+	and p1.name <> p2.name
+order by p1.price asc;
+
+--演習問題3-①
+select p1.name as name_1, p2.name as name_2
+from Products p1
+inner join Products p2
+on p1.name >= p2.name;
+
+--演習問題3-②
+delete from Products p1
+	where exists (select *
+		from Products p2
+		where p1.name = p2.name
+		and p1.price = p2.price
+		and p1.)
+
+
+
+
+
+
+
+
+
+
+
+
