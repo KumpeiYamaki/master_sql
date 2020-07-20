@@ -1,0 +1,58 @@
+-- クロス表で入れ子の表側を作る
+select ms1.age_range, ms2.sex, tmp.pop_tohoku, tmp.pop_kanto
+from TblAge as ms1 cross join tblsex as ms2
+left outer join (
+	select age_class, sex_cd, 
+		sum(case when pref_name in ('秋田', '青森') then population else null end) as pop_tohoku,
+		sum(case when pref_name in ('東京', '千葉') then population else null end) as pop_kanto
+	from tblpop
+	group by age_class, sex_cd
+) as tmp
+on tmp.age_class=ms1.age_class and tmp.sex_cd=ms2.sex_cd
+order by ms1.age_range;
+
+-- 掛け算としての結合
+select i.item, sum(s.quantity)
+from items i
+left outer join saleshistory s
+on i.item_no = s.item_no
+group by i.item_no;
+
+
+--演習問題8-①
+select ms1.age_range, ms2.sex, 
+	sum(case when tmp.pref_name in ('秋田', '青森') then population else null end) as pop_tohoku, 
+	sum(case when tmp.pref_name in ('東京', '千葉') then population else null end) as pop_kanto
+from TblAge as ms1 cross join tblsex as ms2
+left outer join tblpop as tmp
+on tmp.age_class=ms1.age_class and tmp.sex_cd=ms2.sex_cd
+group by ms1.age_range, ms2.sex
+order by ms1.age_range;
+
+--演習問題8-②
+select employee,
+	(case when child_1 is null then 0 else 1 end) +
+	(case when child_2 is null then 0 else 1 end) +
+	(case when child_3 is null then 0 else 1 end) as num_child
+from personnel;
+
+--演習問題8-③
+merge into class_a A
+	using (select * from class_b) B
+	on (A.id = B.id)
+	when matched then
+		update set A.name = B.name
+	when not matched then 
+		insert (id, name)
+		values (B.id, B.name);
+
+
+
+
+
+
+
+
+
+
+

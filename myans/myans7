@@ -1,0 +1,45 @@
+--現状維持の年
+select year, cur_sale
+from (
+	select year, sale as cur_sale, 
+		max(sale) over (order by year range between 1 preceding and 1 preceding) as last_sale
+	from Sales) tmp
+where cur_sale=last_sale;
+
+--増減どちらかを表示
+select year, cur_sale,
+	case
+		when cur_sale > last_sale then '↑'
+		when cur_sale < last_sale then '↓'
+		when cur_sale = last_sale then '→'
+		else '-' end as result
+from (
+	select year, sale as cur_sale, 
+		max(sale) over (order by year range between 1 preceding and 1 preceding) as last_sale
+	from Sales) tmp;
+
+--歯抜けあり
+select year, cur_sale,
+	case
+		when cur_sale > last_sale then '↑'
+		when cur_sale < last_sale then '↓'
+		when cur_sale = last_sale then '→'
+		else '-' end as result
+from (
+	select year, sale as cur_sale, 
+		max(sale) over (order by year rows between 1 preceding and 1 preceding) as last_sale
+	from Sales) tmp;
+
+--演習問題7-①
+select prc_date, prc_amt, 
+	avg(prc_amt) over (order by prc_date rows between 2 preceding and current row) as mov_avg
+from accounts;
+
+--演習問題7-②
+select prc_date, prc_amt,
+	case when mov_cnt=3 then mov_avg
+	else NULL end as mov_avg
+from (select prc_date, prc_amt, 
+		avg(prc_amt) over (order by prc_date rows between 2 preceding and current row) as mov_avg,
+		count(prc_amt) over (order by prc_date rows between 2 preceding and current row) as mov_cnt
+	from accounts) tmp;

@@ -1,0 +1,49 @@
+-- 関係除算(having)
+select emp
+from empskills es
+left join skills s on es.skill=s.skill
+group by emp
+having count(s.skill) = 3;
+
+-- 関係除算(集合)
+select distinct emp
+from empskills es1
+where not exists (
+	select skill
+	from skills
+	except
+	select skill
+	from empskills es2
+	where es1.emp=es2.emp);
+
+-- 等しい部分集合を見つける
+select s1.sup as sup1, s2.sup as sup2
+from supparts s1, supparts s2
+where s1.sup < s2.sup
+and s1.part=s2.part
+group by s1.sup, s2.sup
+having count(*) = (select count(*)
+	from supparts sp3
+	where sp3.sup=s1.sup)
+and count(*) = (select count(*)
+	from supparts sp4
+	where sp4.sup=s2.sup);
+
+
+-- 演習問題9-②
+select distinct emp
+from empskills es1
+where not exists (
+	select skill
+	from skills
+	except
+	select skill
+	from empskills es2
+	where es1.emp=es2.emp)
+and not exists (
+	select skill
+	from empskills es3
+	where es1.emp=es3.emp
+	except
+	select skill
+	from skills);
